@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Osumare</title>
+  <style>
+    /* ---------- Reset & Base ---------- */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, "Helvetica Neue", sans-serif; color: #0f172a; background: #fff; line-height: 1.5; }
+    img { max-width: 100%; height: auto; display: block; }
+    a { color: inherit; text-decoration: none; }
+
+    /* ---------- Theme ---------- */
+    :root {
+      --primary: #2563eb;
+      --primary-600: #1d4ed8;
+      --bg-muted: #f5f7fb;
+      --text-muted: #475569;
+      --border: #e2e8f0;
+      --radius: 14px;
+      --shadow: 0 10px 30px rgba(2, 6, 23, 0.08);
+    }
+
+    /* ---------- Layout Helpers ---------- */
+    .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+    .section { padding: 64px 0; }
+    .center { text-align: center; }
+    .muted { color: var(--text-muted); }
+
+    /* ---------- Buttons ---------- */
+    .btn { display: inline-block; padding: 10px 20px; border-radius: 9999px; font-weight: 700; border: 2px solid transparent; cursor: pointer; transition: transform .15s ease, background-color .2s ease, border-color .2s ease; user-select: none; }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-600); }
+    .btn-outline { background: transparent; color: #0f172a; border-color: #0f172a; }
+    .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+
+    /* ---------- Header ---------- */
+    header { position: sticky; top: 0; z-index: 50; background: #ffffffd9; backdrop-filter: saturate(140%) blur(6px); border-bottom: 1px solid var(--border); }
+    .header-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 0; }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand img { width: 120px; height: auto; }
+
+    /* ---------- Hero ---------- */
+    .hero { padding: 72px 0 32px; }
+    .hero h1 { font-size: clamp(28px, 4vw, 44px); margin: 0 0 8px; line-height: 1.1; }
+    .hero h1 span { color: var(--primary); }
+    .hero .subtitle { font-size: clamp(16px, 2.2vw, 20px); margin-bottom: 20px; }
+    .hero-grid { display: grid; grid-template-columns: 1.1fr; gap: 32px; align-items: center; }
+    .hero-cta { display: flex; gap: 12px; justify-content: center; }
+    @media (min-width: 900px) {
+      .hero-grid { grid-template-columns: 1.1fr 1fr; }
+      .hero-cta { justify-content: flex-start; }
+    }
+
+    /* ---------- Feature Split ---------- */
+    .split { display: grid; grid-template-columns: 1fr; gap: 40px; align-items: center; }
+    @media (min-width: 900px) { .split { grid-template-columns: 1fr 1fr; } }
+
+    /* ---------- Cards Grid ---------- */
+    .cards { display: grid; grid-template-columns: repeat(1, minmax(0, 1fr)); gap: 16px; margin-top: 28px; }
+    @media (min-width: 640px) { .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (min-width: 1024px) { .cards { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+    .card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); height: 100%; display: flex; flex-direction: column; gap: 10px; }
+    .card h3 { margin: 6px 0 4px; font-size: 18px; }
+    .card p { margin: 0; font-size: 14px; color: var(--text-muted); }
+
+    /* ---------- "Insights" list next to image ---------- */
+    .insights { display: grid; grid-template-columns: 1fr; gap: 14px; }
+    .insight { display: grid; grid-template-columns: 56px 1fr; gap: 14px; align-items: center; background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; box-shadow: var(--shadow); }
+    .insight h4 { margin: 2px 0 0; font-size: 16px; }
+    .insight p { margin: 2px 0 0; font-size: 14px; color: var(--text-muted); }
+
+    /* ---------- Path / Narrative ---------- */
+    .path { display: grid; grid-template-columns: 1fr; gap: 28px; align-items: center; }
+    @media (min-width: 900px) { .path { grid-template-columns: 1fr 1fr; } }
+
+    /* ---------- Two-up Info Rows ---------- */
+    .twoups { display: grid; grid-template-columns: 1fr; gap: 24px; }
+    @media (min-width: 900px) { .twoups { grid-template-columns: 1fr 1fr; } }
+    .twoup { text-align: center; padding: 10px; border-radius: var(--radius); }
+    .twoup h3 { margin: 10px 0 6px; }
+    .twoup p { margin: 0; color: var(--text-muted); }
+
+    /* ---------- Soft Blurs Row ---------- */
+    .blurs { display: grid; grid-template-columns: 1fr; gap: 24px; align-items: center; position: relative; }
+    @media (min-width: 900px) { .blurs { grid-template-columns: 1fr 1fr 1fr; } }
+    .blurball { height: 44vh; border: 2px solid; filter: blur(80px); border-radius: 40%; opacity: .9; }
+    .blurball.left { background: #82beff73; }
+    .blurball.right { background: rgba(255,223,228,0.65); }
+    .blurs .copy { position: relative; z-index: 2; text-align: center; }
+
+    /* ---------- Testimonial ---------- */
+    .testimonial { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; display: grid; grid-template-columns: 1fr; gap: 16px; }
+    @media (min-width: 900px) { .testimonial { grid-template-columns: 1.1fr 1fr; } }
+    .test-body { display: flex; flex-direction: column; gap: 12px; }
+    .test-meta { display: flex; align-items: center; gap: 10px; }
+    .test-quote p { margin: 0; }
+
+    /* ---------- FAQ ---------- */
+    .faq { display: grid; gap: 12px; max-width: 760px; margin: 0 auto; }
+    details { border: 1px solid var(--border); border-radius: var(--radius); background: #fff; box-shadow: var(--shadow); padding: 10px 14px; }
+    summary { cursor: pointer; font-weight: 700; }
+
+    /* ---------- Contact ---------- */
+    .contact { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px; }
+    .form-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+    @media (min-width: 900px) { .form-grid { grid-template-columns: 1fr 1fr; } }
+    .field { display: grid; gap: 6px; }
+    input, textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; font: inherit; }
+    textarea { min-height: 140px; resize: vertical; }
+
+    /* ---------- Footer ---------- */
+    footer { background: #e8f1ff; margin-top: 56px; }
+    .footer-grid { display: grid; grid-template-columns: 1fr; gap: 24px; padding: 24px 0; }
+    @media (min-width: 900px) { .footer-grid { grid-template-columns: 2fr 1fr 1fr; } }
+    .foot-title { font-weight: 800; font-size: 22px; margin: 10px 0; }
+    .menu ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+    .copyright { text-align: center; padding: 16px 0 26px; color: var(--text-muted); }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="container header-inner">
+      <div class="brand">
+        <img alt="Osumare" src="data:image/jpeg;base64,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" />
+      </div>
+      <nav>
+        <a class="btn btn-outline" href="#contact">Contact Us</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero section">
+    <div class="container hero-grid">
+      <div>
+        <h1>Elevate <span>Real Estate Success</span> with</h1>
+        <h2 style="font-size: clamp(26px,3.4vw,36px); margin: 6px 0 10px; font-weight: 800;">Osumare's Digital Expertise</h2>
+        <p class="subtitle muted">Tailored Solutions for Thriving in the Digital Real Estate Landscape</p>
+        <div class="hero-cta">
+          <a href="#services" class="btn btn-primary">Get Started</a>
+        </div>
+      </div>
+      <div class="center">
+        <img src="https://qsumare.netlify.app/public/Header%20image.png" alt="We Need Marketing" />
+      </div>
+    </div>
+  </section>
+
+  <!-- Digital Mastery Split -->
+  <section class="section">
+    <div class="container">
+      <h2 class="center" style="margin-bottom: 16px;">Real Estate-Focused Digital Mastery</h2>
+      <div class="split">
+        <div>
+          <img src="https://qsumare.netlify.app/public/cuate.png" alt="Digital property marketing" />
+        </div>
+        <div>
+          <h3>Unlock the Potential of Digital Real Estate Excellence</h3>
+          <p class="muted" id="p1">At Osumare, we understand that the real estate landscape demands a digital presence that aligns with the intricacies of property marketing. Our range of specialized services is meticulously designed to catapult your brand's success in the ever-evolving digital property market.</p>
+          <div style="margin-top:12px;">
+            <a href="#contact" class="btn btn-primary">Get Started</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services -->
+  <section id="services" class="section" style="background: var(--bg-muted);">
+    <div class="container">
+      <h2 class="center" style="font-weight: 800;">Our Service Offerings</h2>
+      <p class="center muted">Strategies that Drive Property Market Excellence</p>
+
+      <div class="cards">
+        <article class="card">
+          <img src="https://qsumare.netlify.app/public/Group%20117.png" alt="Automotive SEO" />
+          <h3>Automotive SEO</h3>
+          <p>Drive your success by igniting online visibility and outracing the competition. Accelerate your business growth today.</p>
+        </article>
+        <article class="card">
+          <img src="https://qsumare.netlify.app/public/Group%20117%20(1).png" alt="PPC Precision" />
+          <h3>PPC Precision</h3>
+          <p>Maximize visibility and drive quality traffic with meticulously targeted Pay‑Per‑Click campaigns.</p>
+        </article>
+        <article class="card">
+          <img src="https://qsumare.netlify.app/public/Group%20117%20(2).png" alt="Social Acceleration" />
+          <h3>Social Acceleration</h3>
+          <p>Engage and influence your audience across social media platforms, amplifying your brand's presence and connection.</p>
+        </article>
+        <article class="card">
+          <img src="https://qsumare.netlify.app/public/content.png" alt="Content Excellence" />
+          <h3>Content Excellence</h3>
+          <p>Craft compelling, niche‑specific content that resonates with audiences and drives engagement.</p>
+        </article>
+        <article class="card">
+          <img src="https://qsumare.netlify.app/public/Group%20117%20(4).png" alt="Web Design" />
+          <h3>Web Design</h3>
+          <p>Transform visitors into customers with high‑performance websites designed for seamless UX and increased conversions.</p>
+        </article>
+        <article class="card">
+          <img src="https://qsumare.netlify.app/public/Data%20driven%20(1).png" alt="Data-Driven Insights" />
+          <h3>Data‑Driven Insights</h3>
+          <p>Leverage data to refine strategies and make informed decisions that drive revenue growth.</p>
+        </article>
+        <article class="card">
+          <img src="https://qsumare.netlify.app/public/Group%20117%20(6).png" alt="End-to-End Solutions" />
+          <h3>End‑to‑End Solutions</h3>
+          <p>From strategy to execution, we deliver cohesive solutions aligned to your goals.</p>
+        </article>
+        <article class="card">
+          <img src="https://qsumare.netlify.app/public/Group%20117%20(7).png" alt="Video Marketing" />
+          <h3>Video Marketing</h3>
+          <p>Use compelling video to move buyers from awareness to action across the entire funnel.</p>
+        </article>
+      </div>
+
+      <div class="center" style="margin-top: 24px;">
+        <a href="#contact" class="btn btn-primary">Get Started</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Insights with image -->
+  <section class="section">
+    <div class="container">
+      <h2 class="center" style="margin-bottom: 10px;">Navigating Real Estate's Digital Landscape</h2>
+      <p class="center muted">Insights for Real Estate Marketing Advantage</p>
+
+      <div class="split" style="margin-top: 28px;">
+        <div class="center">
+          <img src="https://qsumare.netlify.app/public/Frame%20892.png" alt="We are Expert" />
+        </div>
+        <div class="insights">
+          <div class="insight">
+            <img src="https://qsumare.netlify.app/public/Group%20116.png" alt="Market Trends" width="56" height="56" />
+            <div>
+              <h4>Market Trends Analysis</h4>
+              <p>Predictive insights to guide real estate strategies.</p>
+            </div>
+          </div>
+          <div class="insight">
+            <img src="https://qsumare.netlify.app/public/Group%20116%20(1).png" alt="Buyer Persona" width="56" height="56" />
+            <div>
+              <h4>Targeted Buyer Persona</h4>
+              <p>Understand and connect with your ideal property buyers.</p>
+            </div>
+          </div>
+          <div class="insight">
+            <img src="https://qsumare.netlify.app/public/Group%20116%20(2).png" alt="Competitor Insights" width="56" height="56" />
+            <div>
+              <h4>Competitor Insights</h4>
+              <p>Stand out in the property market with informed strategies.</p>
+            </div>
+          </div>
+          <div class="insight">
+            <img src="https://qsumare.netlify.app/public/phone-find-fill.png" alt="Visual Appeal" width="56" height="56" />
+            <div>
+              <h4>Visual Content Appeal</h4>
+              <p>Captivate buyers with appealing visuals and immersive experiences.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Optimized Path -->
+  <section class="section">
+    <div class="container path">
+      <div class="center">
+        <img src="https://qsumare.netlify.app/public/bro.png" alt="Optimized path" />
+      </div>
+      <div>
+        <h2>Optimized Path to Property Purchase</h2>
+        <p class="muted">In the dynamic realm of real estate, the journey from a property inquiry to a successful conversion demands a well‑crafted approach. At Osumare, we specialize in guiding potential buyers through this journey seamlessly, maximizing inquiries‑turned‑conversions with expert strategies.</p>
+        <div style="margin-top: 16px;">
+          <a href="#contact" class="btn btn-primary">Get Started</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Driving Inquiries to Conversions (features) -->
+  <section class="section">
+    <div class="container">
+      <h2 class="center">Driving Property Inquiries to Conversions</h2>
+      <div class="twoups" style="margin-top: 22px;">
+        <div class="twoup">
+          <img src="https://qsumare.netlify.app/public/icon.png" alt="CTA optimization" />
+          <h3>Call-to-Action Optimization</h3>
+          <p>Carefully crafted CTAs guide potential buyers through the journey, enhancing engagement and conversion rates.</p>
+        </div>
+        <div class="twoup">
+          <img src="https://qsumare.netlify.app/public/icon%20(1).png" alt="Landing pages" />
+          <h3>Landing Page Efficiency</h3>
+          <p>Tailored landing pages deliver seamless experiences and clear pathways for inquiry submission.</p>
+        </div>
+      </div>
+      <div class="twoups" style="margin-top: 8px;">
+        <div class="twoup">
+          <img src="https://qsumare.netlify.app/public/icon%20(2).png" alt="Social proof" />
+          <h3>Social Proof Utilization</h3>
+          <p>Leverage testimonials and success stories to build trust and encourage action.</p>
+        </div>
+        <div class="twoup">
+          <img src="https://qsumare.netlify.app/public/icon%20(3).png" alt="Mobile friendly" />
+          <h3>Mobile-Friendly Experience</h3>
+          <p>Responsive design ensures great experiences across devices, boosting engagement and conversions.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Our Expertise in Action -->
+  <section class="section">
+    <div class="container">
+      <h2 class="center">Our Expertise in Action</h2>
+      <div class="twoups" style="margin-top: 22px;">
+        <div class="twoup">
+          <img src="https://qsumare.netlify.app/public/icon%20(4).png" alt="Effective CTAs" />
+          <h3>Effective CTAs</h3>
+          <p>Strategic CTAs that drove a significant increase in property inquiries and accelerated sales.</p>
+        </div>
+        <div class="twoup">
+          <img src="https://qsumare.netlify.app/public/icon%20(5).png" alt="Conversion pages" />
+          <h3>Conversion-Optimized Landing Pages</h3>
+          <p>Case study: landing page optimization increased property lead conversion rates by 30%.</p>
+        </div>
+      </div>
+      <div class="twoups" style="margin-top: 8px;">
+        <div class="twoup">
+          <img src="https://qsumare.netlify.app/public/icon%20(6).png" alt="Trust building" />
+          <h3>Trust Building with Social Proof</h3>
+          <p>Client testimonials boosted buyer confidence, increasing conversions for a development project.</p>
+        </div>
+        <div class="twoup">
+          <img src="https://qsumare.netlify.app/public/icon%20(7).png" alt="Mobile first" />
+          <h3>Mobile-First Success</h3>
+          <p>Mobile‑responsive design resulted in a 25% increase in inquiries from mobile users.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Peace of Mind with soft blurs -->
+  <section class="section">
+    <div class="container blurs">
+      <div class="blurball left" aria-hidden="true"></div>
+      <div class="copy">
+        <h2>Your Peace of Mind</h2>
+        <p class="muted">Through our conversion‑focused strategies, we ensure that property seekers are not just visitors, but engaged prospects ready to make their next move in the real estate market.</p>
+        <div style="margin-top: 8px;">
+          <a href="#contact" class="btn btn-primary">Get Started</a>
+        </div>
+      </div>
+      <div class="blurball right" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <!-- Testimonial -->
+  <section class="section">
+    <div class="container">
+      <h2 class="center" style="font-weight: 800;">What Our Pharma Partners Say</h2>
+      <p class="center muted">Driving Transformations, One Brand at a Time</p>
+
+      <div class="testimonial" style="margin-top: 18px;">
+        <div>
+          <img src="https://qsumare.netlify.app/public/Video.png" alt="Video testimonial" />
+        </div>
+        <div class="test-body">
+          <div class="test-meta">
+            <img src="https://qsumare.netlify.app/public/Avatar%20of%20team.png" alt="Avatar" width="44" height="44" />
+            <strong>Tabish Khan</strong>
+            <img src="https://qsumare.netlify.app/public/Symbol.png" alt="Symbol" width="24" height="24" />
+          </div>
+          <div class="test-quote">
+            <p>Osumare's expertise in pharma marketing is unparalleled. Their strategies helped us navigate complex regulations while driving remarkable growth.</p>
+          </div>
+          <div class="center" aria-hidden="true">
+            <img src="https://qsumare.netlify.app/public/scroll%20buttion.png" alt="Scroll dots" style="display:inline-block;" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section">
+    <div class="container">
+      <h2 class="center">Frequently Asked Questions</h2>
+      <p class="center muted">Pinpoint your audience with precision, ensuring your marketing efforts reach those most likely to engage.</p>
+
+      <div class="faq" style="margin-top: 16px;">
+        <details>
+          <summary>How does Osumare measure campaign success?</summary>
+          <div class="muted" style="margin-top:10px;">
+            We believe in measurable results. Every campaign is tracked, analyzed, and refined. You’ll receive regular reports detailing key metrics and outcomes.
+          </div>
+        </details>
+        <details>
+          <summary>What industries do you specialize in?</summary>
+          <div class="muted" style="margin-top:10px;">
+            We focus on real estate, automotive, and pharma — with tailored strategies for each vertical.
+          </div>
+        </details>
+        <details>
+          <summary>Do you offer end‑to‑end marketing solutions?</summary>
+          <div class="muted" style="margin-top:10px;">
+            Yes. From strategy, creative, and media to analytics and CRO, we manage the entire funnel.
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" class="section">
+    <div class="container">
+      <h2 class="center" style="line-height: 1.3;">Connect with Our Digital Marketing Experts</h2>
+      <p class="center muted">Reach out for tailored strategies and results‑driven solutions. Let's elevate your online presence together.</p>
+      <div class="contact" style="margin-top: 16px;">
+        <form action="#" method="post" onsubmit="event.preventDefault(); alert('Thanks! We\'ll be in touch.');">
+          <div class="form-grid">
+            <div class="field">
+              <label for="name">Name</label>
+              <input id="name" name="name" type="text" placeholder="Your Name" required />
+            </div>
+            <div class="field">
+              <label for="phone">Phone</label>
+              <input id="phone" name="phone" type="tel" placeholder="Enter your number" />
+            </div>
+            <div class="field">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" placeholder="Enter your Email" required />
+            </div>
+            <div class="field" style="grid-column: 1 / -1;">
+              <label for="message">Message</label>
+              <textarea id="message" name="message" placeholder="Your Message"></textarea>
+            </div>
+          </div>
+          <div class="center" style="margin-top: 14px;">
+            <button class="btn btn-primary" type="submit">Get Started</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container footer-grid">
+      <div>
+        <img src="https://qsumare.netlify.app/public/Osumare%20Logo-01%20(2)%204.png" alt="Osumare logo" width="160" height="48" />
+        <p class="muted" style="margin: 10px 0;">The best digital marketing agency in Pune with a proven track record of consistently delivering quality service.</p>
+        <p><strong>Address</strong></p>
+        <p class="muted">Survey No. 43, Pathare Thube Nagar, Nagar Road, Kharadi, Pune‑14, Maharashtra, India.</p>
+        <p><strong>Contact Us</strong></p>
+        <p class="muted"><img src="https://qsumare.netlify.app/public/mail-fill.png" alt="mail" style="display:inline; vertical-align:middle;" /> &nbsp; hello@osumare.in</p>
+        <p class="muted"><img src="https://qsumare.netlify.app/public/phone-fill.png" alt="phone" style="display:inline; vertical-align:middle;" /> &nbsp; +91 8459 8762 26</p>
+      </div>
+      <div class="menu">
+        <div class="foot-title">Menu</div>
+        <ul>
+          <li><a href="#">Home</a></li>
+          <li><a href="#">About</a></li>
+          <li><a href="#services">Services</a></li>
+          <li><a href="#">Work</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#contact">Career</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="foot-title">Social</div>
+        <img src="https://qsumare.netlify.app/public/Icons.png" alt="social icons" />
+      </div>
+    </div>
+    <div class="container">
+      <p class="copyright">© 2023 Osumare. All rights reserved.</p>
+    </div>
+  </footer>
+</body>
+</html>
